@@ -1,2 +1,13 @@
-﻿  Quad.cpp
-  Graphics_Engine.vcxproj -> C:\Users\tdk\Documents\Uni\BA\Graphics_Engine\x64\Debug\Graphics_Engine.exe
+﻿  Buffer.cpp
+  Camera.cpp
+  Input.cpp
+  Main.cpp
+  Quad.cpp
+  Screen.cpp
+  Screen.h
+  Shader.cpp
+  Texture.cpp
+  Code wird generiert...
+  glad.c
+x64\Debug\Screen.obj : warning LNK4042: Objekt mehrmals angegeben; zusätzliche Objekte werden ignoriert.
+  Graphics_Engine.vcxproj -> C:\Users\tim-k\Documents\Uni\BA\code\3D-audio\x64\Debug\Graphics_Engine.exe
