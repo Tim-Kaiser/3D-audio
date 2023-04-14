@@ -1,5 +1,5 @@
-#ifndef H_QUAD
-#define H_QUAD
+#ifndef QUAD_H
+#define QUAD_H
 
 #include "glad.h"
 #include "Buffer.h"
@@ -24,6 +24,14 @@ private:
 	Texture m_tex;
 	glm::mat4 m_modelMatrix;
 	glm::vec3 m_position;
+
+	// put this into a separate material class
+
+	float m_shininess;
+	glm::vec3 m_ambient;
+	glm::vec3 m_diffuse;
+	glm::vec3 m_specular;
+
 };
 
 #endif
