@@ -241,6 +241,18 @@ bool Shader::SendUniformData(const std::string& uniformName, const glm::mat4& da
     return true;
 }
 
+bool Shader::SendUniformData(const std::string& uniformName, const glm::vec3 data)
+{
+    GLint id = GetUniformID(uniformName);
+
+    if (id == -1) {
+        return false;
+    }
+
+    glUniform3fv(id, 1, glm::value_ptr(data));
+    return true;
+}
+
 GLuint Shader::GetShaderProgramID()
 {
     return m_shaderProgramID;

@@ -6,6 +6,7 @@ in vec2 textureCoord;
 
 out vec3 col;
 out vec2 uv;
+out vec3 vertexOut;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -16,4 +17,5 @@ void main(){
 
 	uv = textureCoord;
 	col = color;
+	vertexOut = (modelMatrix * vec4(vertex, 1.0)).xyz;
 }

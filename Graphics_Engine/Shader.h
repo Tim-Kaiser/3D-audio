@@ -4,6 +4,7 @@
 #include <string>
 #include "glad.h"
 #include <glm.hpp>
+#include <gtc/type_ptr.hpp>
 
 class Shader {
 public:
@@ -35,6 +36,8 @@ public:
 	bool SendUniformData(const std::string& uniformName, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 
 	bool SendUniformData(const std::string& uniformName, const glm::mat4& data);
+	bool SendUniformData(const std::string& uniformName, const glm::vec3 data);
+
 
 
 private:
