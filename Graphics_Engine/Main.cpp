@@ -1,3 +1,5 @@
+#define SAF_USE_INTEL_MKL_LP64
+
 #include <iostream>
 #include <SDL.h>
 #include "Screen.h"
