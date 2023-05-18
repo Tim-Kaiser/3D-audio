@@ -11,6 +11,7 @@
 #include <gtc/matrix_transform.hpp>
 #include "Camera.h"
 #include "Light.h"
+#include "Hrtf.h"
 
 
 bool isRunning = true;
@@ -57,6 +58,10 @@ int main(int argc, char* argv[]) {
 	camera.SetProjection();
 
 	Light light;
+	Hrtf hrtf;
+	std::string filepath = ".. / HRTF / mit_kemar_normal_pinna.sofa";
+	char* path = &filepath[0];
+	hrtf.LoadSOFA(path);
 
 
 	//================================================================
