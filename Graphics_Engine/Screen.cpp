@@ -38,8 +38,14 @@ bool Screen::Init()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	std::cout << "Running OpenGL with version 4.6" << std::endl;
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+	auto Width = DM.w;
+	auto Height = DM.h;
 
-	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 700, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_OPENGL);
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+
 
 	if (!window) {
 		std::cout << "Error creating window" << std::endl;

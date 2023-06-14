@@ -11,7 +11,7 @@
 #include <gtc/matrix_transform.hpp>
 #include "Camera.h"
 #include "Light.h"
-#include "Hrtf.h"
+
 
 
 bool isRunning = true;
@@ -47,22 +47,16 @@ int main(int argc, char* argv[]) {
 
 	//================================================================
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -1.0f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -1.0f));
+	//modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	//modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.0f));
 
 	Quad quad(modelMatrix);
 	Camera camera;
-	//camera.SetProjection(static_cast<GLfloat>(width), static_cast<GLfloat>(height));
 	camera.SetProjection();
 
 	Light light;
-	Hrtf hrtf;
-	std::string filepath = ".. / HRTF / mit_kemar_normal_pinna.sofa";
-	char* path = &filepath[0];
-	hrtf.LoadSOFA(path);
-
 
 	//================================================================
 

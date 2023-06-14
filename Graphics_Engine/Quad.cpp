@@ -7,13 +7,13 @@ Quad::Quad(glm::mat4 modelMatrix)
 	m_modelMatrix = modelMatrix;
 
 	GLfloat vertices[] = {
-		-0.5f,  0.5f, 0.0f, // triangle 1
-		 0.5f,  0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
+		-1.0f,  1.0f, 0.0f, // triangle 1
+		 1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
 
-		-0.5f, -0.5f, 0.0f, // triangle 2
-		 0.5f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f
+		-1.0f, -1.0f, 0.0f, // triangle 2
+		 1.0f,  1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f
 	};
 
 	GLfloat colors[] = {
