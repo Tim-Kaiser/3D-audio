@@ -16,6 +16,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{1301d09b-1256-4b4d-8d5c-4071b4d169eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -84,5 +87,10 @@
     </None>
     <None Include="HRTF\mit_kemar_normal_pinna.sofa" />
     <None Include="HRTF\RIEC_hrir_subject_001.sofa" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Audio\Heavy.wav">
+      <Filter>Audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

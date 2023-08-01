@@ -150,7 +150,7 @@ GLint Shader::GetUniformID(const std::string& uniformName) {
 
     GLint id = glGetUniformLocation(m_shaderProgramID, uniformName.c_str());
     if (id == -1) {
-        std::cout << "Variable " << uniformName << " is not defined or not used." << std::endl;
+        //std::cout << "Variable " << uniformName << " is not defined or not used." << std::endl;
         return -1;
     }
     return id;

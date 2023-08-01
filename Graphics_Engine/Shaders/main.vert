@@ -9,13 +9,11 @@ out vec2 uv;
 out vec3 vertexOut;
 
 uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
 
 void main(){
-	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertex, 1.0);
+	gl_Position = modelMatrix * vec4(vertex, 1.0);
 
 	uv = textureCoord;
 	col = color;
-	vertexOut = (modelMatrix * vec4(vertex, 1.0)).xyz;
+	vertexOut = vec3(textureCoord, 0.);
 }

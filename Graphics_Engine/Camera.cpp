@@ -5,70 +5,61 @@
 #include <iostream>
 
 
-Camera::Camera()
+Camera::Camera(glm::vec3 position, glm::vec3 lookAt, float fov)
 {
-	m_viewMatrix = glm::mat4(1.0f);
-	m_projectionMatrix = glm::mat4(1.0f);
+	m_position = position;
+	m_up = glm::vec3(0, 1, 0);
+	m_globalUp = glm::vec3(0, 1, 0);
 
-	m_position = glm::vec3(0.0f, 0.0f, 1.0f);
-	m_direction = glm::vec3(0.0f, 0.0f, -1.0f);
-	m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_direction = glm::normalize(lookAt - position);
+	m_pitch = glm::degrees(asin(m_direction.y));
+	m_yaw = glm::degrees(atan2(m_direction.z, m_direction.x));
+
+	m_fov = glm::radians(fov);
+	m_focalDistance = 0.1f;
+	m_aperture = 0.0;
+	Update();
 }
 
-//void Camera::SetProjection(GLfloat width, GLfloat height, GLfloat fov, GLfloat nearClip, GLfloat farClip)
-//{
-//	GLfloat aspectRatio = 1280.0f / 700.0f;
-//	GLfloat FOV = 45.0f;
-//	//m_projectionMatrix = glm::perspective(fov, aspectRatio, nearClip, farClip);
-//	m_projectionMatrix = glm::perspective(FOV, aspectRatio, 0.001f, 1000.0f);
-//	std::cout << "test" << std::endl;
-//
-//	Shader::Instance()->SendUniformData("projectionMatrix", m_projectionMatrix);
-//}
-
-void Camera::SetProjection() {
-
-		GLfloat aspectRatio = 1280.0f / 700.0f;
-		GLfloat FOV = 45.0f;
-		GLfloat near = 0.001f;
-		GLfloat far = 1000.0f;
-
-		m_projectionMatrix = glm::perspective(FOV, aspectRatio, near, far);
-	
-		Shader::Instance()->SendUniformData("projectionMatrix", m_projectionMatrix);
+void Camera::offsetPosition(glm::vec3 offset)
+{
+	m_position += offset;
+	Update();
 }
+
+void Camera::offsetLookAt(float offsetX, float offsetY)
+{
+	m_pitch -= offsetY;
+	m_yaw += offsetX;
+	Update();
+}
+
 
 
 void Camera::Update()
 {	
-	char key = Input::Instance()->getKeyDown();
+	glm::vec3 tmp;
+	tmp.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	tmp.y = sin(glm::radians(m_pitch));
+	tmp.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
 
-	if (key == 'w') {
-		m_position.z -= 0.01f;
-	}
-	else if (key == 's') {
-		m_position.z += 0.01f;
-	}
-	else if (key == 'q') {
-		m_position.y += 0.01f;
+	m_fwd = glm::normalize(tmp);
+	m_right = glm::normalize(glm::cross(m_fwd, m_globalUp));
+	m_up = glm::normalize(glm::cross(m_right, m_fwd));
 
-	}
-	else if (key == 'e') {
-		m_position.y -= 0.01f;
-
-	}
-	else if (key == 'a') {
-		m_position.x -= 0.01f;
-
-	}
-	else if (key == 'd') {
-		m_position.x += 0.01f;
-	}
-
-
-	m_viewMatrix = glm::lookAt(m_position, m_position + m_direction, m_up);
-	Shader::Instance()->SendUniformData("viewMatrix", m_viewMatrix);
-	Shader::Instance()->SendUniformData("cameraPos", m_position);
-
+	SendToShader();
 }
 
+void Camera::SendToShader()
+{
+
+	Shader::Instance()->SendUniformData("camera.up", m_up);
+	Shader::Instance()->SendUniformData("camera.right", m_right);
+	Shader::Instance()->SendUniformData("camera.forward", m_fwd);
+	Shader::Instance()->SendUniformData("camera.position", m_position);
+	Shader::Instance()->SendUniformData("camera.fov", m_fov);
+	Shader::Instance()->SendUniformData("camera.focalDist", m_focalDistance);
+	Shader::Instance()->SendUniformData("camera.aperture", m_aperture);
+
+
+}

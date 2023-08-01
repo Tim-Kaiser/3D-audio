@@ -1,6 +1,7 @@
 #include "Quad.h"
 #include "Shader.h"
 #include <gtc/matrix_transform.hpp>
+#include <SDL.h>
 
 Quad::Quad(glm::mat4 modelMatrix)
 {
@@ -45,8 +46,12 @@ Quad::Quad(glm::mat4 modelMatrix)
 	m_buffer.LinkBuffer("vertex", Buffer::VERTEX_BUFFER, Buffer::XYZ, Buffer::FLOAT);
 	m_buffer.LinkBuffer("color", Buffer::COLOR_BUFFER, Buffer::RGB, Buffer::FLOAT);
 	m_buffer.LinkBuffer("textureCoord", Buffer::TEXTURE_BUFFER, Buffer::UV, Buffer::FLOAT);
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+	auto Width = DM.w;
+	auto Height = DM.h;
 
-	m_tex.Load("Textures/wood.jpg");
+	m_tex.Load(Width, Height,GL_RGBA);
 
 	m_shininess = 50.0f;
 	m_position = glm::vec3(0.0f);
@@ -69,13 +74,13 @@ void Quad::Update()
 void Quad::Render()
 {
 	Shader::Instance()->SendUniformData("modelMatrix", m_modelMatrix);
-	Shader::Instance()->SendUniformData("isLit", 1);
-	Shader::Instance()->SendUniformData("isTextured", 1);
+	//Shader::Instance()->SendUniformData("isLit", 1);
+	//Shader::Instance()->SendUniformData("isTextured", 1);
 
-	Shader::Instance()->SendUniformData("material.shininess", m_shininess);
-	Shader::Instance()->SendUniformData("material.ambient", m_ambient.r, m_ambient.g, m_ambient.b);
-	Shader::Instance()->SendUniformData("material.diffuse", m_diffuse.b, m_diffuse.g, m_diffuse.b);
-	Shader::Instance()->SendUniformData("material.specular", m_specular.r, m_specular.g, m_specular.b);
+	//Shader::Instance()->SendUniformData("material.shininess", m_shininess);
+	//Shader::Instance()->SendUniformData("material.ambient", m_ambient.r, m_ambient.g, m_ambient.b);
+	//Shader::Instance()->SendUniformData("material.diffuse", m_diffuse.b, m_diffuse.g, m_diffuse.b);
+	//Shader::Instance()->SendUniformData("material.specular", m_specular.r, m_specular.g, m_specular.b);
 
 
 	m_tex.Bind();
