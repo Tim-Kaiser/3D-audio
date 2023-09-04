@@ -3,10 +3,8 @@
 #include <gtc/matrix_transform.hpp>
 #include <SDL.h>
 
-Quad::Quad(glm::mat4 modelMatrix)
+Quad::Quad()
 {
-	m_modelMatrix = modelMatrix;
-
 	GLfloat vertices[] = {
 		-1.0f,  1.0f, 0.0f, // triangle 1
 		 1.0f,  1.0f, 0.0f,
@@ -39,7 +37,6 @@ Quad::Quad(glm::mat4 modelMatrix)
 	auto Width = DM.w;
 	auto Height = DM.h;
 	m_position = glm::vec3(0.0f);
-	m_tex.Load(Width, Height,GL_RGBA);
 
 }
 
@@ -54,19 +51,6 @@ void Quad::Update()
 
 void Quad::Render()
 {
-	Shader::Instance()->SendUniformData("modelMatrix", m_modelMatrix);
-
-	m_tex.Bind();
 	m_buffer.Draw(Buffer::TRIANGLES);
-	m_tex.Unbind();
 }
 
-void Quad::setModelMatrix(glm::mat4 modelMatrix)
-{
-	m_modelMatrix = modelMatrix;
-}
-
-glm::mat4 Quad::getModelMatrix()
-{
-	return m_modelMatrix;
-}

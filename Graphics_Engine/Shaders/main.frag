@@ -1,6 +1,5 @@
 #version 460
 
-//in vec3 col;
 in vec2 uv;
 in vec3 vertexOut;
 layout(location = 0) out vec4 fragCol;
@@ -9,7 +8,6 @@ layout (std430, binding = 2) buffer spatialization_data
 	float sphere_coords[3];
 };
 
-uniform sampler2D textureImg;
 uniform vec2 resolution;
 
 //PATHTRACING UNIFORMS

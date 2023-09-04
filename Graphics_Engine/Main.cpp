@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 	//================================================================
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	Quad quad(modelMatrix);
+	Quad quad;
 	Camera camera(glm::vec3(0,0.5,1), glm::vec3(0,0,0), 45.0f);
 
 	SDL_DisplayMode DM;

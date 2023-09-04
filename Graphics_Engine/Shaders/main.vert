@@ -7,10 +7,8 @@ out vec3 col;
 out vec2 uv;
 out vec3 vertexOut;
 
-uniform mat4 modelMatrix;
-
 void main(){
-	gl_Position = modelMatrix * vec4(vertex, 1.0);
+	gl_Position = vec4(vertex, 1.0);
 
 	uv = textureCoord;
 	vertexOut = vec3(textureCoord, 0.);

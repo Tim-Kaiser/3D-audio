@@ -143,24 +143,20 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClInclude Include="Screen.h" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Sound.cpp" />
-    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Light.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sound.h" />
-    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HRTF\mit_kemar_normal_pinna.sofa" />
