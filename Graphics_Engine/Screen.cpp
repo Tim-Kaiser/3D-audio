@@ -31,15 +31,21 @@ bool Screen::Init()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	std::cout << "Running OpenGL in CORE mode" << std::endl;
 
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-	//std::cout << "Running OpenGL in COMPATIBILITY mode" << std::endl;
-
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	std::cout << "Running OpenGL with version 4.6" << std::endl;
 
-	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 700, SDL_WINDOW_OPENGL);
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+	auto Width = DM.w;
+	auto Height = DM.h;
+
+	window = SDL_CreateWindow("Bachelor Project Tim Kaiser", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_OPENGL);
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+
+	// hide cursor
+	SDL_ShowCursor(SDL_DISABLE);
+
 
 	if (!window) {
 		std::cout << "Error creating window" << std::endl;

@@ -62,8 +62,8 @@ void Light::Update()
 void Light::Render()
 {
 	Shader::Instance()->SendUniformData("modelMatrix", m_modelMatrix);
-	Shader::Instance()->SendUniformData("isLit", 0);
-	Shader::Instance()->SendUniformData("isTextured", 0);
+	//Shader::Instance()->SendUniformData("isLit", 0);
+	//Shader::Instance()->SendUniformData("isTextured", 0);
 
 	glPointSize(20.0f);
 	m_buffer.Draw(Buffer::POINTS);
@@ -71,9 +71,9 @@ void Light::Render()
 
 void Light::SendToShader()
 {
-	Shader::Instance()->SendUniformData("light.ambient", m_ambient.r, m_ambient.g, m_ambient.b);
-	Shader::Instance()->SendUniformData("light.specular", m_specular.r, m_specular.g, m_specular.b);
-	Shader::Instance()->SendUniformData("light.diffuse", m_diffuse.r, m_diffuse.g, m_diffuse.b);
-	Shader::Instance()->SendUniformData("light.position", m_position.x, m_position.y, m_position.b);
+	//Shader::Instance()->SendUniformData("light.ambient", m_ambient.r, m_ambient.g, m_ambient.b);
+	//Shader::Instance()->SendUniformData("light.specular", m_specular.r, m_specular.g, m_specular.b);
+	//Shader::Instance()->SendUniformData("light.diffuse", m_diffuse.r, m_diffuse.g, m_diffuse.b);
+	//Shader::Instance()->SendUniformData("light.position", m_position.x, m_position.y, m_position.b);
 
 }

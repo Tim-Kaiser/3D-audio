@@ -5,6 +5,7 @@
 #include "glad.h"
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
+#include <vector>
 
 class Shader {
 public:
@@ -20,6 +21,11 @@ public:
 	bool CompileShaders(const std::string& filename, ShaderType shaderType);
 	void AttachShaders();
 	bool LinkProgram();
+
+	void SetUpSSBO();
+	void UpdateSSBO();
+
+	std::vector<float> GetSSBOData();
 
 	void DetachShaders();
 	void DestroyShaders();
@@ -39,7 +45,6 @@ public:
 	bool SendUniformData(const std::string& uniformName, const glm::vec3 data);
 
 
-
 private:
 	Shader();
 	Shader(const Shader&);
@@ -48,6 +53,9 @@ private:
 	GLuint m_shaderProgramID;
 	GLuint m_vertexShaderID;
 	GLuint m_fragmentShaderID;
+
+	GLuint m_ssbo;
+	std::vector<float> m_ssboData;
 };
 
 #endif // !SHADER_H

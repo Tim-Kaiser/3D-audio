@@ -25,13 +25,6 @@ private:
 	glm::mat4 m_modelMatrix;
 	glm::vec3 m_position;
 
-	// put this into a separate material class
-
-	float m_shininess;
-	glm::vec3 m_ambient;
-	glm::vec3 m_diffuse;
-	glm::vec3 m_specular;
-
 };
 
 #endif

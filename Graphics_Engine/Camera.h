@@ -7,18 +7,26 @@
 class Camera {
 
 public:
-	Camera();
+	Camera(glm::vec3 position, glm::vec3 lookAt, float fov);
+	void offsetPosition(glm::vec3 offset);
+	void offsetLookAt(float offsetX, float offsetY);
 	void Update();
-	//void SetProjection(GLfloat width, GLfloat height, GLfloat fov = 45.0f, GLfloat nearClip = 0.001f, GLfloat farClip = 1000.0f);
-	void SetProjection();
+	void SendToShader();
 
 private:
-	glm::mat4 m_viewMatrix;
-	glm::mat4 m_projectionMatrix;
 
 	glm::vec3 m_position;
 	glm::vec3 m_direction;
 	glm::vec3 m_up;
+	glm::vec3 m_globalUp;
+
+	glm::vec3 m_right;
+	glm::vec3 m_fwd;
+	float m_fov;
+	float m_focalDistance;
+	float m_aperture;
+	float m_yaw;
+	float m_pitch;
 };
 
 #endif // !CAMERA_H

@@ -116,6 +116,9 @@ void Input::Update()
 			{
 				m_isKeyPressed = true;
 				m_keyDown = event.key.keysym.sym;
+				if (m_keyDown == SDLK_ESCAPE) {
+					m_isXClicked = true;
+				}
 				break;
 			}
 			case SDL_KEYUP:
