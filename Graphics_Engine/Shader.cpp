@@ -2,7 +2,8 @@
 #include <iostream>
 #include "Shader.h"
 
-
+// elevation, azimuth, minDistToSource
+float m_spatialization_data[3] = { 1.0, 2.0, 1000.0 };
 
 Shader* Shader::Instance()
 {
@@ -15,6 +16,9 @@ Shader::Shader()
     m_shaderProgramID = 0;
     m_vertexShaderID = 0;
     m_fragmentShaderID = 0;
+    m_ssboData;
+    m_ssbo = 0;
+
 }
 
 bool Shader::CreateProgram()
@@ -125,6 +129,37 @@ bool Shader::LinkProgram()
     }
 
     return true;
+}
+
+void Shader::SetUpSSBO()
+{
+
+    glGenBuffers(1, &m_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_spatialization_data), &m_spatialization_data, GL_DYNAMIC_COPY);
+
+    // SSBO is bound to location 2
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+}
+
+void Shader::UpdateSSBO()
+{
+    // SSBO UPDATE
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+    GLvoid* ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(ptr, &m_spatialization_data, sizeof(m_spatialization_data));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+}
+
+std::vector<float> Shader::GetSSBOData()
+{
+    m_ssboData = std::vector<float>(sizeof(m_spatialization_data));
+    glGetNamedBufferSubData(m_ssbo, 0, sizeof(m_spatialization_data), m_ssboData.data());
+    std::cout << "FRAGMENT SHADER OUT(elev. - az. - dist.): " << m_ssboData[0] << " - " << m_ssboData[1] << " - " << m_ssboData[2] << std::endl;
+    return m_ssboData;
 }
 
 void Shader::DetachShaders()

@@ -29,8 +29,14 @@ void Camera::offsetPosition(glm::vec3 offset)
 
 void Camera::offsetLookAt(float offsetX, float offsetY)
 {
-	m_pitch -= offsetY;
-	m_yaw += offsetX;
+	m_pitch -= offsetY * 0.3;
+	if (m_pitch <= -89.0) {
+		m_pitch = -89.0;
+	}
+	if (m_pitch >= 89.0) {
+		m_pitch = 89.0;
+	}
+	m_yaw += offsetX * 0.4;
 	Update();
 }
 
@@ -52,7 +58,6 @@ void Camera::Update()
 
 void Camera::SendToShader()
 {
-
 	Shader::Instance()->SendUniformData("camera.up", m_up);
 	Shader::Instance()->SendUniformData("camera.right", m_right);
 	Shader::Instance()->SendUniformData("camera.forward", m_fwd);
@@ -60,6 +65,5 @@ void Camera::SendToShader()
 	Shader::Instance()->SendUniformData("camera.fov", m_fov);
 	Shader::Instance()->SendUniformData("camera.focalDist", m_focalDistance);
 	Shader::Instance()->SendUniformData("camera.aperture", m_aperture);
-
 
 }

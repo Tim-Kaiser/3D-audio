@@ -1,28 +1,29 @@
 #define SAF_USE_INTEL_MKL_LP64
 
-#include <iostream>
-#include <SDL.h>
 #include "Screen.h"
 #include "Input.h"
 #include "glad.h"
 #include "Shader.h"
 #include "Quad.h"
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
 #include "Camera.h"
-#include "Light.h"
+#include "Sound.h"
+
+
 #include <random>
 #include <chrono>
 #include <SDL_mixer.h>
+#include <algorithm>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <iostream>
+#include <SDL.h>
+#include <fftw3.h>
 
 bool isRunning = true;
 const char AUDIO_FILE[] = ".Audio/Heavy.wav";
 const int SAMPLE_RATE = 44100;
-const int NUM_SAMPLES_PER_FILL = 512;
+const int NUM_SAMPLES_PER_FILL = 128; // 128 is the length of the HRIR files
 const int SAMPLE_SIZE = sizeof(float);
-
-
-//AUDIO
 
 
 
@@ -57,35 +58,25 @@ int main(int argc, char* argv[]) {
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	Quad quad(modelMatrix);
-	Camera camera(glm::vec3(0,0,1), glm::vec3(0,0,0), 45.0f);
+	Camera camera(glm::vec3(0,0.5,1), glm::vec3(0,0,0), 45.0f);
 
-	Light light;
 	SDL_DisplayMode DM;
 	SDL_GetCurrentDisplayMode(0, &DM);
 	auto Width = DM.w;
 	auto Height = DM.h;
 
-	
 	//================================================================
-	//AUDIO
-	int initMix = Mix_Init(0);
-	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-
-	Mix_Music* music = Mix_LoadMUS("Audio/Heavy.wav");
-	//Mix_PlayMusic(music, -1);
-
-
-
-	int audio_rate = MIX_DEFAULT_FREQUENCY;
-	int audio_channels = MIX_DEFAULT_CHANNELS;
-	int audio_buffers = 4096;
-	
+ 
+	Sound audio;
+	/*audio.initAudio();
+	audio.Play();*/
 	//================================================================
-	// HRTF
+	// SSBO
 
+	Shader::Instance()->SetUpSSBO();
 
-
-
+	
+	 
 	//================================================================
 	float aspect_ratio = 21.0 / 9.0;
 	float viewport_height = 2.0;
@@ -109,9 +100,13 @@ int main(int argc, char* argv[]) {
 	//================================================================
 	while (isRunning) {
 		Screen::Instance()->ClearScreen();
-		Input::Instance()->Update();
 		Shader::Instance()->SendUniformData("time", t);
-		t += 0.00001;
+		t += 0.01;
+
+		Shader::Instance()->UpdateSSBO();
+
+		Input::Instance()->Update();
+
 
 
 		if (Input::Instance()->isXClicked()) {
@@ -129,24 +124,23 @@ int main(int argc, char* argv[]) {
 		else if (Input::Instance()->getKeyDown() == 'd') {
 			camera.offsetPosition(glm::vec3(0.1, 0.0, 0.0));
 		}
+
+		camera.offsetLookAt(Input::Instance()->getMouseMoveX(), Input::Instance()->getMouseMoveY());
 			
 		camera.Update();
-		light.Update();
-
-		light.SendToShader();
-
-		light.Render();
 		quad.Render();
 
 		Screen::Instance()->SwapBuffer();
-		
-
 	}
 
+	SDL_CloseAudio();
+
+	Shader::Instance()->GetSSBOData();
 	Shader::Instance()->DetachShaders();
 	Shader::Instance()->DestroyShaders();
 	Shader::Instance()->DestroyProgram();
 
 	Screen::Instance()->Close();
+
 	return 0;
 }
