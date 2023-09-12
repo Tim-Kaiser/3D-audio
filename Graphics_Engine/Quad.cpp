@@ -45,9 +45,6 @@ Quad::~Quad()
 	m_buffer.DestroyBuffer();
 }
 
-void Quad::Update()
-{
-}
 
 void Quad::Render()
 {

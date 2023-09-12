@@ -11,7 +11,6 @@ public:
 	Quad();
 	~Quad();
 
-	void Update();
 	void Render();
 
 

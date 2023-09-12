@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <algorithm>
 #include <fftw3.h>
+#include <vector>
 
 class Sound {
 
@@ -18,6 +19,9 @@ public:
 	void setCoordinates(int elevation, int azimuth);
 	void getFilename();
 
+	void getAngles();
+	void WriteToFile();
+
 
 	int initAudio();
 	void recalculateHRTF();
@@ -31,6 +35,7 @@ private:
 	std::string m_filenameHRIR;
 
 	SDL_AudioDeviceID m_device;
+	std::vector<float> m_angles;
 
 	//Uint8* m_sample_freq_buffer;	
 	
