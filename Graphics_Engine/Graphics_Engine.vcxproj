@@ -113,6 +113,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,8 +160,6 @@
     <ClInclude Include="Sound.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HRTF\mit_kemar_normal_pinna.sofa" />
-    <None Include="HRTF\RIEC_hrir_subject_001.sofa" />
     <None Include="Shaders\main.frag" />
     <None Include="Shaders\main.vert" />
   </ItemGroup>
@@ -348,8 +347,7 @@
     <Media Include="..\..\hrtf-spatial-audio\mit\elev80\H80e150a.wav" />
     <Media Include="..\..\hrtf-spatial-audio\mit\elev80\H80e180a.wav" />
     <Media Include="..\..\hrtf-spatial-audio\mit\elev90\H90e000a.wav" />
-    <Media Include="..\..\[99Sounds] 99 Drum Samples\[99Sounds] 99 Drum Samples\Samples\snare-dist03.wav" />
-    <Media Include="Audio\Heavy.wav" />
+    <Media Include="Audio\knock.wav" />
     <Media Include="mit\elev-10\H-10e000a.wav" />
     <Media Include="mit\elev-10\H-10e005a.wav" />
     <Media Include="mit\elev-10\H-10e010a.wav" />

@@ -90,12 +90,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -116,12 +110,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Screen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,13 +124,8 @@
     <None Include="Shaders\main.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="HRTF\mit_kemar_normal_pinna.sofa" />
-    <None Include="HRTF\RIEC_hrir_subject_001.sofa" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="Audio\Heavy.wav">
-      <Filter>Audio</Filter>
-    </Media>
     <Media Include="mit\elev0\H0e000a.wav">
       <Filter>Resource Files\mit\elev0</Filter>
     </Media>
@@ -698,9 +681,6 @@
     <Media Include="mit\elev-20\H-20e180a.wav">
       <Filter>Resource Files\mit\elev-20</Filter>
     </Media>
-    <Media Include="..\..\[99Sounds] 99 Drum Samples\[99Sounds] 99 Drum Samples\Samples\snare-dist03.wav">
-      <Filter>Audio</Filter>
-    </Media>
     <Media Include="..\..\hrtf-spatial-audio\mit\elev30\H30e180a.wav">
       <Filter>Resource Files\mit\elev30</Filter>
     </Media>
@@ -1249,6 +1229,9 @@
     </Media>
     <Media Include="..\..\hrtf-spatial-audio\mit\elev90\H90e000a.wav">
       <Filter>Resource Files\mit\elev90</Filter>
+    </Media>
+    <Media Include="Audio\knock.wav">
+      <Filter>Audio</Filter>
     </Media>
   </ItemGroup>
 </Project>

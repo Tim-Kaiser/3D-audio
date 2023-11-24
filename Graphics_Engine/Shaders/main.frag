@@ -23,7 +23,6 @@ struct Sphere{
 	float radius;
 	vec3 color;
 	bool isLight;
-	bool isAudio;
 };
 
 struct Ray{
@@ -70,9 +69,13 @@ float totalPathLength = 0.0;
 // BDPT
 
 #define LIGHTPATHLEN 2
-#define EYEPATHLEN 3
+#define EYEPATHLEN 2
+
+#define AUDIOPATHLEN 1
+
 
 //#define BDPT
+//#define BDST
 
 struct Vertex{
 	Hit hit;
@@ -80,7 +83,7 @@ struct Vertex{
 
 Vertex eyePath[EYEPATHLEN];
 Vertex lightPath[LIGHTPATHLEN];
-
+Vertex audioPath[AUDIOPATHLEN];
 // UTILS
 
 #define PI 3.14159265359
@@ -89,11 +92,11 @@ Vertex lightPath[LIGHTPATHLEN];
 #define hash21(p) fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453)
 #define hash33(p) fract(sin( (p) * mat3( 127.1,311.7,74.7 , 269.5,183.3,246.1 , 113.5,271.9,124.6) ) *43758.5453123)
 
-#define SAMPLES 4
-#define PATHDEPTH 8
+#define SAMPLES 12
+#define PATHDEPTH 6
 
 #define LIGHT vec3(15.)
-#define BRIGHTNESS 0.005
+#define BRIGHTNESS 0.05
 
 #define WHITE vec3(0.8)
 #define GREEN vec3(0., 0.8, 0.1)
@@ -102,23 +105,26 @@ Vertex lightPath[LIGHTPATHLEN];
 // direct light sampling
 #define DLS
 
-float hash(float seed)
-{
-    return fract(sin(seed)*43758.5453 );
-}
 
+Sphere[10] scene;
+Sphere[8] shadowscene;
+
+
+//==================================================================================================
+
+// modified version of hash3 from: https://gist.github.com/gonnavis/6e1a58419e5835358122cb1526ece8e5
 vec2 hash2( inout float s ) {
 	return fract(sin(vec2(s+=0.05,s+=0.05))*vec2(43758.5453123,22578.1459123));
 }
 
-float rand(){
-	return hash21(hash2(seed));
-}
-
+// http://corysimon.github.io/articles/uniformdistn-on-sphere/
 vec3 randomSphereDirection(){
-	 vec2 h = hash2(seed) * vec2(2.,6.28318530718)-vec2(1,0);
-    float phi = h.y;
-	return vec3(sqrt(1.-h.x*h.x)*vec2(sin(phi),cos(phi)),h.x);
+	vec2 h = hash2(seed) * vec2(2.,6.28318530718)-vec2(1,0);
+
+	float theta = 2. * PI * h.x;
+	float phi = acos(1. - 2. * h.y);
+
+	return normalize(vec3(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi)));
 }
 
 
@@ -137,6 +143,7 @@ vec3 cosWeightedRandomHemisphereDirection( const vec3 n ) {
     return sqrt(u)*(cos(randomDist)*b1 + sin(randomDist)*b2) + sqrt(1.0-u)*n;
 }
 
+
 void set_face_normal(inout Ray ray, vec3 normal, inout Hit hit){
 	hit.front = dot(ray.direction, normal) < 0.;
 	hit.normal = hit.front ? normal : -normal;
@@ -144,28 +151,6 @@ void set_face_normal(inout Ray ray, vec3 normal, inout Hit hit){
 
 vec3 at(Ray r, float t){
 	return r.origin + t*r.direction;
-}
-
-vec2 cartesianToSpherical(vec3 p){
-	int elev = 0;
-	int az = 0;
-
-	float r = sqrt( p.x*p.x + p.y*p.y + p.z*p.z);
-	float incl = p.z / r;
-
-	int sgn = 0;
-
-	if(p.y > 0.){
-		sgn = 1;
-	}else if(p.y < 0.){
-		sgn = -1;
-	}
-
-	float a = sgn * acos( p.x / ( sqrt(p.x*p.x + p.y*p.y) ) );
-
-	elev = int(incl);
-	az = int(a);
-	return vec2(p.x, p.y);
 }
 
 
@@ -189,7 +174,6 @@ bool sphere_hit(Sphere sphere, Ray ray, inout Hit hit){
 		vec3 normal = (hit.position - sphere.center) / sphere.radius;
 		set_face_normal(ray, normal, hit);
 		hit.hitLight = sphere.isLight;
-		hit.hitAudio = sphere.isAudio;
 
 		return true;
 	}
@@ -202,7 +186,6 @@ bool sphere_hit(Sphere sphere, Ray ray, inout Hit hit){
 		vec3 normal = (hit.position - sphere.center) / sphere.radius;
 		set_face_normal(ray, normal, hit);
 		hit.hitLight = sphere.isLight;
-		hit.hitAudio = sphere.isAudio;
 
 		return true;
 	}
@@ -210,67 +193,72 @@ bool sphere_hit(Sphere sphere, Ray ray, inout Hit hit){
 	return false;
 }
 
-
-bool scene_hit(inout Ray ray, inout Hit hit, bool isShadow = false){
-
+void sceneInit(){
 	// FIRST ROOM
 
-	Sphere s1 = Sphere(vec3(0.,0., -1.), 0.5, vec3(1., 0.0, 0.3), false, false);
-	Sphere s5 = Sphere(vec3(1.3,0.3, -0.7), 0.3, vec3(0.3, 1.0, 0.3), false, false);
+	Sphere s1 = Sphere(vec3(0.,0., -1.), 0.5, vec3(1., 0.0, 0.3), false);
+	Sphere s5 = Sphere(vec3(1.3,0.3, -0.7), 0.3, vec3(0.3, 1.0, 0.3), false);
 
-	Sphere floorSphere = Sphere(vec3(0., -101.4, -1.), 100., WHITE, false, false);
-	Sphere s2 = Sphere(vec3(0., 110.4, -1.), 100., WHITE, false, false);
-	Sphere leftSphere = Sphere(vec3(-103., 0., -1.), 100., GREEN, false, false);
-	Sphere rightSphere = Sphere(vec3(80., 0., 70.), 90., RED, false, false);
-	Sphere backSphere = Sphere(vec3(0., 0., -120.), 100., WHITE, false, false);
-	Sphere frontSphere = Sphere(vec3(0., 0., 110.), 100., WHITE, false, false);
+	Sphere floorSphere = Sphere(vec3(0., -101.4, -1.), 100., WHITE, false);
+	Sphere s2 = Sphere(vec3(0., 110.4, -1.), 100., WHITE, false);
+	Sphere leftSphere = Sphere(vec3(-103., 0., -1.), 100., GREEN, false);
+	Sphere rightSphere = Sphere(vec3(80., 0., 70.), 90., RED, false);
+	Sphere backSphere = Sphere(vec3(0., 0., -120.), 100., WHITE, false);
+	Sphere frontSphere = Sphere(vec3(0., 0., 110.), 100., WHITE, false);
 
 	// SECOND ROOM
 	
-	Sphere rightFloor = Sphere(vec3(75., -101, -10), 100., GREEN, false, false);
-	Sphere rightBack = Sphere(vec3(210, 20, -100),100,  WHITE, false, false);
+	Sphere rightFloor = Sphere(vec3(75., -101, -10), 100., GREEN, false);
+	Sphere rightBack = Sphere(vec3(210, 20, -100),100,  WHITE, false);
 
-
-	// LIGHT/AUDIO
-	//lightSphere.radius = 0.5;
-	//audioSphere.center = vec3(.5 - sin(time * 2), .6 + cos(time) * 1.5, -0.2 - sin(time * 1));
-
-#ifdef BDPT
-	Sphere[12] scene;
 	lightSphere.center = vec3( 80. ,80., -35.);
-
-	if(isShadow){
-		scene = Sphere[](s1, floorSphere, s5, s2, leftSphere, rightSphere, backSphere, rightFloor, rightBack, frontSphere, s1, s1);
-	}else{
-		scene = Sphere[](s1, floorSphere, lightSphere, s5, s2, leftSphere, rightSphere, backSphere, rightFloor, rightBack, frontSphere ,audioSphere);
-	}
-#else
-	Sphere[10] scene;
 	lightSphere.center = vec3(5.5 + sin(time * 2)  * 8, .6 + sin(time), 0. - sin(time * 1) * 8);
 
-	if(isShadow){
-		scene = Sphere[](s1, floorSphere, s5, s2, leftSphere, rightSphere, backSphere, frontSphere, s1, s1);
-	}else{
-		scene = Sphere[](s1, floorSphere, lightSphere, s5, s2, leftSphere, rightSphere, backSphere, frontSphere ,audioSphere);
-	}
 
-#endif
+	shadowscene = Sphere[](s1, floorSphere, s5, s2, leftSphere, rightSphere, backSphere, frontSphere);
+	scene = Sphere[](s1, floorSphere, lightSphere, s5, s2, leftSphere, rightSphere, backSphere, frontSphere ,audioSphere);	
+}
+
+
+bool scene_hit(inout Ray ray, inout Hit hit, bool isShadow = false){
+
+	lightSphere.center = vec3(5.5 + sin(time * 2)  * 8, .6 + sin(time), 0. - sin(time * 1) * 8);
+
+
 	float closest_hit = INFINITY;
 	bool has_hit = false;
 
 
-	for(int i = 0; i < scene.length(); i++){
-		Hit tmp;
-		if(sphere_hit(scene[i],ray, tmp)){
-			has_hit = true;
-			if(tmp.t < closest_hit){
-				closest_hit = tmp.t;
-				hit.t = tmp.t;
-				hit.normal = tmp.normal;
-				hit.position = tmp.position;
-				hit.emission = tmp.emission;
-				hit.hitLight = tmp.hitLight;
-				hit.hitAudio = tmp.hitAudio;
+	if(isShadow){
+		for(int i = 0; i < shadowscene.length(); i++){
+			Hit tmp;
+			if(sphere_hit(scene[i],ray, tmp)){
+				has_hit = true;
+				if(tmp.t < closest_hit){
+					closest_hit = tmp.t;
+					hit.t = tmp.t;
+					hit.normal = tmp.normal;
+					hit.position = tmp.position;
+					hit.emission = tmp.emission;
+					hit.hitLight = tmp.hitLight;
+					hit.hitAudio = tmp.hitAudio;
+				}
+			}
+		}
+	}else{
+		for(int i = 0; i < scene.length(); i++){
+			Hit tmp;
+			if(sphere_hit(scene[i],ray, tmp)){
+				has_hit = true;
+				if(tmp.t < closest_hit){
+					closest_hit = tmp.t;
+					hit.t = tmp.t;
+					hit.normal = tmp.normal;
+					hit.position = tmp.position;
+					hit.emission = tmp.emission;
+					hit.hitLight = tmp.hitLight;
+					hit.hitAudio = tmp.hitAudio;
+				}
 			}
 		}
 	}
@@ -300,7 +288,7 @@ float toDegrees(float angle){
 	return angle * (180/PI);
 }
 
-void setAngles(vec3 directionToAudio, float addedLength = 0.0){
+void setAngles(vec3 directionToAudio, float addedLength = 0.0, bool adjust = false){
 	vec3 tmp = directionToAudio - camera.forward;
 
 	int elev = int(toDegrees( atan(tmp.y, sqrt(tmp.x * tmp.x + tmp.z * tmp.z) )));
@@ -310,9 +298,15 @@ void setAngles(vec3 directionToAudio, float addedLength = 0.0){
 		az = az % 180;
 	}
 
-	elevation = max(elev, -40);
-	azimuth = az;
-	minDistToAudioSource = totalPathLength + addedLength;
+	if(!adjust){
+		elevation = max(elev, -40);
+		azimuth = az;
+		minDistToAudioSource = totalPathLength + addedLength;
+		return;
+	}
+
+	elevation += max(elev, -40) * 0.1;
+	azimuth += az * 0.1;
 }
 
 
@@ -333,11 +327,31 @@ void directAudioSampling(){
 	}
 }
 
-void calculateLateReflections(){
-	// TODO
+void buildAudioRays(){
+	vec3 randomDirection = randomSphereDirection();
+	vec3 direction = cosWeightedRandomHemisphereDirection(randomDirection);
+
+	vec3 origin = audioSphere.center + randomDirection * audioSphere.radius;
+	Ray ray = Ray(origin, direction);
+
+	for( int i = 0; i < AUDIOPATHLEN; i++){
+		Hit audioPathHit;
+		bool hasHit = scene_hit(ray, audioPathHit);
+
+		if(!hasHit){
+			audioPathHit.t = -1;
+			audioPath[i].hit = audioPathHit;
+
+			break;
+		}
+		ray.direction = cosWeightedRandomHemisphereDirection(audioPathHit.normal);
+		ray.origin = audioPathHit.position;
+		audioPathHit.emission = LIGHT;
+		audioPath[i].hit = audioPathHit;
+	}
 }
 
-void buildAudioRays(){
+void buildLightRays(){
 	vec3 randomDirection = randomSphereDirection();
 	vec3 direction = cosWeightedRandomHemisphereDirection(randomDirection);
 
@@ -361,6 +375,32 @@ void buildAudioRays(){
 	}
 }
 
+void buildCameraAudioRays(){
+	vec3 randomDirection = randomSphereDirection();
+	vec3 direction = cosWeightedRandomHemisphereDirection(randomDirection);
+
+	vec3 origin = camera.position + randomDirection;
+	Ray ray = Ray(origin, direction);
+
+	for( int i = 0; i < EYEPATHLEN; i++){
+		Hit cameraPathHit;
+		bool hasHit = scene_hit(ray, cameraPathHit);
+
+		if(!hasHit){
+			cameraPathHit.t = -1;
+			eyePath[i].hit = cameraPathHit;
+
+			break;
+		}
+		ray.direction = cosWeightedRandomHemisphereDirection(cameraPathHit.normal);
+		ray.origin = cameraPathHit.position;
+		cameraPathHit.emission = LIGHT;
+		eyePath[i].hit = cameraPathHit;
+	}
+
+
+}
+
 void buildCameraRays(Ray cameraRay){
 	
 	for(int i = 0; i < EYEPATHLEN; i++){
@@ -381,6 +421,34 @@ void buildCameraRays(Ray cameraRay){
 		cameraRay.direction = cosWeightedRandomHemisphereDirection(eyePathHit.normal);
 		cameraRay.origin = eyePathHit.position;
 		eyePath[i].hit = eyePathHit;
+	}
+}
+
+
+void reverberation(){
+	vec3 origDir = eyePath[0].hit.position;
+
+	for(int i = 0; i < EYEPATHLEN; i++){
+		Hit hit = eyePath[i].hit;
+		if(hit.t == -1){
+			return;
+		}
+		totalPathLength += hit.t;
+		for(int i = 0; i < AUDIOPATHLEN; i++){
+			if(audioPath[i].hit.t == -1){
+				break;
+			}
+			totalPathLength += audioPath[i].hit.t;
+
+			vec3 audioPos = audioPath[i].hit.position;
+			vec3 audioDir = audioPos - hit.position;
+			vec3 normalAudioDir = normalize(audioDir);
+			Ray shadowRay = Ray(hit.position, normalAudioDir);
+
+			if(!shadowIntersect(shadowRay, length(audioDir))){
+				setAngles(origDir, length(audioDir), true);
+			}
+		}
 	}
 }
 
@@ -409,8 +477,6 @@ vec3 ray_color(Ray ray){
 		}
 
 		ray.origin = hit.position;
-		totalPathLength += hit.t;
-
 
 		if(hit.hitLight){
 			if(isSpecular){
@@ -454,8 +520,6 @@ vec3 ray_color(Ray ray){
 		if(!h){
 			return col;
 		}
-
-		totalPathLength += hit.t;
 		
 		if(hit.hitLight){
 #ifdef DLS
@@ -495,7 +559,7 @@ vec3 ray_color(Ray ray){
 }
 
 void main(){
-	// seed calc for random unit hemisphere from: https://www.shadertoy.com/view/lsX3DH
+	
 	vec2 q = gl_FragCoord.xy/resolution.xy;
 	vec2 p = -1.0 + 2.0 * ( gl_FragCoord.xy) / resolution.xy;
 	p.x *= resolution.x/resolution.y;
@@ -508,16 +572,18 @@ void main(){
 		return;
 	}
 
+	// seed calc from: https://www.shadertoy.com/view/lsX3DH
 	seed = p.x + p.y * 3.43121412313 + fract(1.12345314312*(time * 0.2));
-	lightSphere = Sphere(vec3(.5, .0, -0.2), 0.3, vec3(15.), true, false);
+	lightSphere = Sphere(vec3(.5, .0, -0.2), 0.3, vec3(15.), true);
 
 	// AUDIO
 	elevation = sphere_coords[0];
 	azimuth = sphere_coords[1];
 	minDistToAudioSource = sphere_coords[2];
 
-	audioSphere = Sphere(vec3(0., .5, .5), 0.01, vec3(0.2, 0., 1.), false, true);
+	audioSphere = Sphere(vec3(0., .5, .5), 0.01, vec3(0.2, 0., 1.), false);
 
+	sceneInit();
 
 	vec3 rayCol = vec3(0.);
 	vec3 totalCol = vec3(0);
@@ -527,21 +593,28 @@ void main(){
     vec3 uu = normalize( cross(ww,vec3(0.0,1.0,0.0) ) );
     vec3 vv = normalize( cross(uu,ww));
 
+	// AUDIO
+	directAudioSampling();
+
+	#ifdef BDST
+		buildAudioRays();
+		buildCameraAudioRays();
+		reverberation();
+	#endif
+
 	for(int i = 0; i<SAMPLES; i++){
 		totalPathLength = 0.;
 		vec2 rayDirOffset = 2. * (hash2(seed) - vec2(0.5)) / resolution.y;
 
 		vec3 rayDir = normalize((p.x + rayDirOffset.x) * camera.right + (p.y + rayDirOffset.y) * camera.up + camera.forward);
 
-		// save first ray direction for audio direction
-		outDir = rayDir;
 		Ray ray = Ray(camera.position, rayDir);
 
 #ifdef BDPT
-		buildAudioRays();
+		buildLightRays();
 		buildCameraRays(ray);
 #endif
-		directAudioSampling();
+	
 		rayCol = ray_color(ray);
 		totalCol += rayCol;
 
@@ -558,6 +631,5 @@ void main(){
 
 
 	fragCol = vec4(totalCol, 1.0);
-	//fragCol = vec4(uv, 0., 1.);
 }
 
