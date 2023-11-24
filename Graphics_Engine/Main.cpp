@@ -20,11 +20,6 @@
 #include <fftw3.h>
 
 bool isRunning = true;
-const char AUDIO_FILE[] = ".Audio/Heavy.wav";
-const int SAMPLE_RATE = 44100;
-const int NUM_SAMPLES_PER_FILL = 128; // 128 is the length of the HRIR files
-const int SAMPLE_SIZE = sizeof(float);
-
 
 
 int main(int argc, char* argv[]) {
@@ -57,8 +52,8 @@ int main(int argc, char* argv[]) {
 	//================================================================
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	Quad quad(modelMatrix);
-	Camera camera(glm::vec3(0,0.5,1), glm::vec3(0,0,0), 45.0f);
+	Quad quad;
+	Camera camera(glm::vec3(0,0.5,1), glm::vec3(0,0.5,0), 70.0f);
 
 	SDL_DisplayMode DM;
 	SDL_GetCurrentDisplayMode(0, &DM);
@@ -102,9 +97,6 @@ int main(int argc, char* argv[]) {
 		Screen::Instance()->ClearScreen();
 		Shader::Instance()->SendUniformData("time", t);
 		t += 0.01;
-
-		Shader::Instance()->UpdateSSBO();
-
 		Input::Instance()->Update();
 
 
@@ -129,13 +121,17 @@ int main(int argc, char* argv[]) {
 			
 		camera.Update();
 		quad.Render();
+		audio.getAngles();
+
+		Shader::Instance()->UpdateSSBO();
 
 		Screen::Instance()->SwapBuffer();
 	}
 
 	SDL_CloseAudio();
 
-	Shader::Instance()->GetSSBOData();
+	audio.WriteToFile();
+	//Shader::Instance()->GetSSBOData();
 	Shader::Instance()->DetachShaders();
 	Shader::Instance()->DestroyShaders();
 	Shader::Instance()->DestroyProgram();

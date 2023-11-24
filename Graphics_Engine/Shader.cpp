@@ -158,7 +158,6 @@ std::vector<float> Shader::GetSSBOData()
 {
     m_ssboData = std::vector<float>(sizeof(m_spatialization_data));
     glGetNamedBufferSubData(m_ssbo, 0, sizeof(m_spatialization_data), m_ssboData.data());
-    std::cout << "FRAGMENT SHADER OUT(elev. - az. - dist.): " << m_ssboData[0] << " - " << m_ssboData[1] << " - " << m_ssboData[2] << std::endl;
     return m_ssboData;
 }
 

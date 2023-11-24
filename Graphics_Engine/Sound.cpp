@@ -1,5 +1,9 @@
 #include "Sound.h"
 #include <vector>
+#include "Shader.h"
+#include <fstream>
+#include <iterator>
+
 
 
 const int SAMPLERATE = 44100;
@@ -59,6 +63,25 @@ void Sound::setCoordinates(int elevation, int azimuth)
 
 void Sound::getFilename()
 {
+}
+
+void Sound::getAngles()
+{
+	std::vector<float> data = Shader::Instance()->GetSSBOData();
+	m_angles.insert(m_angles.end(), data.begin(), data.end());
+}
+
+void Sound::WriteToFile()
+{
+	std::ofstream file("./angles.txt");
+	for (int i = 0; i < m_angles.size(); i++) {
+		file << m_angles[i];
+		file << ", ";
+		if ((i + 1) % 3 == 0) {
+			file << "\n";
+		}
+	}
+	file.close();
 }
 
 int Sound::initAudio()
